@@ -78,6 +78,12 @@ const Timer = ({ seconds, onTimeUp }) => {
 
 const QuestionCard = ({ data, onAnswerSelected }) => {
   const [selectedAnswer, setSelectedAnswer] = useState('');
+
+  useEffect(() => {
+    // Reset selected answer when the question changes
+    setSelectedAnswer('');
+  }, [data]);
+
   const handleAnswerClick = (answer) => {
     setSelectedAnswer(answer);
     onAnswerSelected(answer === data.correctAnswer, data.score);
@@ -92,7 +98,8 @@ const QuestionCard = ({ data, onAnswerSelected }) => {
                   key={index}
                   className={`answer ${selectedAnswer === answer ? 'selected' : ''}`}
                   onClick={() => handleAnswerClick(answer)}
-                  disabled={selectedAnswer !== ''}>
+                  disabled={selectedAnswer !== ''}
+              >
                 {answer}
               </button>
           ))}
@@ -110,30 +117,48 @@ const ScoreDisplay = ({ score }) => {
   );
 };
 
+const TOTAL_QUESTIONS_PER_ROUND = 16;
+
 const App = () => {
-  const [questions, setQuestions] = useState(shuffleArray(triviaData));
+  const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [hasPassed, setHasPassed] = useState(false);
+  const [feedback, setFeedback] = useState('');
+
+  useEffect(()=> {
+    setShuffledQuestions(shuffleArray([...triviaData]).slice(0, TOTAL_QUESTIONS_PER_ROUND));
+  }, []);
 
   const handleAnswerSelection = (isCorrect, questionScore) => {
+    const nextIndex = currentQuestionIndex + 1;
     if (isCorrect) {
       setScore(score + questionScore);
+      setFeedback('Correct!');
     } else {
       setScore(score - questionScore);
+      setFeedback('Wrong!');
     }
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    if (nextIndex < TOTAL_QUESTIONS_PER_ROUND) {
+      const timeoutId = setTimeout(() => {
+        setFeedback('');
+        setCurrentQuestionIndex(nextIndex);
+      }, 2000);
+
+      return () => clearTimeout(timeoutId);
     } else {
       setGameOver(true);
+      setTimeout(() => {
+        setFeedback('');
+      }, 2000);
     }
-    goToNextQuestion();
   };
 
   const goToNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    const nextIndex = currentQuestionIndex +1;
+    if (nextIndex < shuffledQuestions.length) {
+      setCurrentQuestionIndex(nextIndex);
     } else {
       setGameOver(true);
     }
@@ -142,14 +167,13 @@ const App = () => {
   const handlePass = () => {
     if (!hasPassed) {
       setHasPassed(true);
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
       goToNextQuestion();
     }
   };
 
   const handleTimeUp = () => {
-    setScore(score - questions[currentQuestionIndex].score);
-    if (currentQuestionIndex < questions.length - 1) {
+    setScore(score - shuffledQuestions[currentQuestionIndex].score);
+    if (currentQuestionIndex < shuffledQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       setGameOver(true);
@@ -158,7 +182,7 @@ const App = () => {
   };
 
   const restartGame = () => {
-    setQuestions(shuffleArray(triviaData));
+    setShuffledQuestions(shuffleArray([...triviaData]));
     setCurrentQuestionIndex(0);
     setScore(0);
     setGameOver(false);
@@ -176,14 +200,24 @@ const App = () => {
               <button onClick={restartGame}>Restart Game</button>
             </div>
         ) : (
-            <div className="game-area">
-              <QuestionCard
-                  data={questions[currentQuestionIndex]}
-                  onAnswerSelected={handleAnswerSelection}
-              />
-              <Timer seconds={60} onTimeUp={handleTimeUp}/>
-              {!hasPassed && <button onClick={handlePass}>PASS</button>} {/* PASS button */}
-            </div>
+            <>
+              {shuffledQuestions.length > 0 && (
+                  <div className="game-area">
+                    <QuestionCard
+                        data={shuffledQuestions[currentQuestionIndex]}
+                        onAnswerSelected={handleAnswerSelection}
+                        feedback={feedback}
+                    />
+                    <Timer seconds={60} onTimeUp={handleTimeUp}/>
+                    {!hasPassed && (
+                        <button onClick={handlePass} className="button">
+                          PASS
+                        </button>
+                    )}
+                    {feedback && <div className="feedback">{feedback}</div>}
+              </div>
+            )}
+          </>
         )}
       </div>
   );

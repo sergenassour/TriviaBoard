@@ -1,38 +1,107 @@
-.App {
+/* General App Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.app {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Score Display */
+.score-display {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+.score-display.positive { color: #4caf50; }
+.score-display.negative { color: #f44336; }
+
+/* Timer */
+.timer {
+  font-size: 24px;
+  color: #0d47a1;
+  margin-bottom: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+/* Trivia Board and Question Cards */
+.trivia-board {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.question-card {
+  width: calc(50% - 20px);
+  background-color: #fff;
+  border-radius: 10px;
+  margin: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+.question-card:hover {
+  transform: scale(1.05);
+}
+
+/* Category Colors */
+.question-card.Sports { background-color: #f44336; }
+.question-card.Science { background-color: #2196f3; }
+.question-card.Music { background-color: #4caf50; }
+.question-card.Nature { background-color: #ff9800; }
+
+/* Question Text and Answer Buttons */
+.question {
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+.answers {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+}
+.answer-btn {
+  background-color: #e0e0e0;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.answer-btn:hover {
+  background-color: #bdbdbd;
+}
+.answer-btn.selected {
+  background-color: #4caf50;
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
+/* Buttons */
+.button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.button:hover {
+  background-color: #1976d2;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Responsive Design */
+@media (max-width: 600px) {
+  .question-card {
+    width: 100%;
   }
-  to {
-    transform: rotate(360deg);
+  .timer, .score-display, .button, .answer-btn {
+    font-size: 18px;
   }
 }
