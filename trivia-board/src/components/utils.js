@@ -11,4 +11,4 @@ const shuffleArray = (array) => {
     return array;
 };
 
-export default shuffleArray();
+export default shuffleArray;

@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import triviaData from "./data";
-import TOTAL_QUESTIONS_PER_ROUND from "./constants";
-import QuestionCard from "./QuestionCard";
-import ScoreDisplay from "./ScoreDisplay";
-import Timer from "./Timer";
-import shuffleArray from "./utils"
+import triviaData from "./components/data";
+import TOTAL_QUESTIONS_PER_ROUND from "./components/constants";
+import QuestionCard from "./components/QuestionCard";
+import ScoreDisplay from "./components/ScoreDisplay";
+import Timer from "./components/Timer";
+import shuffleArray from "./components/utils";
+import categories from './components/categories';
+import Legend from "./components/Legend";
 
 const App = () => {
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
+  const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [passedQuestions, setPassedQuestions] = useState([]);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [hasPassed, setHasPassed] = useState(false);
@@ -20,6 +24,13 @@ const App = () => {
     setShuffledQuestions(shuffleArray([...triviaData]).slice(0, TOTAL_QUESTIONS_PER_ROUND));
   }, []);
 
+  const onCardSelect = (index) => {
+    if (!passedQuestions.includes(index)) {
+      setSelectedQuestionIndex(index);
+      setResetTimerFlag(true);
+    }
+  };
+
   const handleAnswerSelection = (isCorrect, questionScore) => {
     const nextIndex = currentQuestionIndex + 1;
     if (isCorrect) {
@@ -29,6 +40,7 @@ const App = () => {
       setScore(score - questionScore);
       setFeedback('Wrong!');
     }
+    setResetTimerFlag(false);
     if (nextIndex < TOTAL_QUESTIONS_PER_ROUND) {
       const timeoutId = setTimeout(() => {
         setFeedback('');
@@ -54,21 +66,23 @@ const App = () => {
     }
   };
 
-  const handlePass = () => {
-    if (!hasPassed) {
+  const handlePass = (index) => {
+    if (!hasPassed && !passedQuestions.includes(index)) {
       setHasPassed(true);
-      goToNextQuestion();
+      setPassedQuestions((prevPassed) =>[...prevPassed, index]);
+      setFeedback('Question Passed');
+      setTimeout(() => setFeedback(''), 2000);
     }
   };
 
   const handleTimeUp = () => {
     setScore(score - shuffledQuestions[currentQuestionIndex].score);
+    setResetTimerFlag(false);
     if (currentQuestionIndex < shuffledQuestions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       setGameOver(true);
     }
-    goToNextQuestion();
   };
 
   const restartGame = () => {
@@ -81,6 +95,7 @@ const App = () => {
 
   return (
       <div className="app">
+        <Legend categories={categories} />
         <ScoreDisplay score={score}/>
         {gameOver ? (
             <div className="end-game">
@@ -90,25 +105,27 @@ const App = () => {
               <button onClick={restartGame}>Restart Game</button>
             </div>
         ) : (
-            <>
-              {shuffledQuestions.length > 0 && (
-                  <div className="game-area">
-                    <QuestionCard
-                        data={shuffledQuestions[currentQuestionIndex]}
-                        onAnswerSelected={handleAnswerSelection}
-                        feedback={feedback}
+            <div className="trivia-board">
+              {shuffledQuestions.map((question, index) => (
+                <QuestionCard
+                    key={index}
+                    data={question}
+                    onCardSelect={() => onCardSelect(index)}
+                    onAnswerSelected={handleAnswerSelection}
+                    isSelected={selectedQuestionIndex === index}
+                    isPassed={passedQuestions.includes(index)}
+                    feedback={feedback}
                     />
+            ))}
+              {selectedQuestionIndex !== null && (
+                  <>
                     <Timer seconds={60} onTimeUp={handleTimeUp} resetTimer={resetTimerFlag}/>
-                    {!hasPassed && (
-                        <button onClick={handlePass} className="button">
-                          PASS
-                        </button>
-                    )}
+                    {!hasPassed && <button onClick={handlePass} className="button"> PASS </button>}
+                  </>
+              )}
                     {feedback && <div className="feedback">{feedback}</div>}
               </div>
             )}
-          </>
-        )}
       </div>
   );
 };
