@@ -1,4 +1,10 @@
 /* General App Styles */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 body {
   font-family: 'Arial', sans-serif;
   background-color: #f5f5f5;
@@ -38,7 +44,7 @@ body {
 .card-face-down {
   cursor: pointer;
   padding: 10px;
-  background-color: #ddd; /* Placeholder color */
+  background-color: #ddd;
   border-radius: 5px;
   text-align: center;
 }
@@ -61,6 +67,11 @@ body {
 }
 
 .question-card.passed {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.question-card.disabled {
   opacity: 0.5;
   pointer-events: none;
 }
@@ -133,7 +144,11 @@ body {
 }
 
 .legend-text {
-  /* Additional styles if needed */
+}
+
+.theme-toggle-button {
+  float: right;
+  margin-right: 20px;
 }
 
 /* Responsive Design */
