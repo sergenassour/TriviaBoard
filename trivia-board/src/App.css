@@ -148,3 +148,37 @@ body {
     font-size: 18px;
   }
 }
+
+/* Dark Mode Styles */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #121212;
+    color: #fff;
+  }
+
+  .question-card {
+    background-color: #1e1e1e;
+    color: #fff;
+  }
+
+  .card-face-down {
+    background-color: #333;
+  }
+
+  .answer-btn {
+    background-color: #555;
+    color: #fff;
+  }
+
+  .answer-btn:hover {
+    background-color: #777;
+  }
+
+  .button {
+    background-color: #333;
+  }
+
+  .button:hover {
+    background-color: #555;
+  }
+}

@@ -10,6 +10,7 @@ import categories from './components/categories';
 import Legend from "./components/Legend";
 
 const App = () => {
+  const [theme, setTheme] = useState('light');
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -22,6 +23,20 @@ const App = () => {
 
   useEffect(()=> {
     setShuffledQuestions(shuffleArray([...triviaData]).slice(0, TOTAL_QUESTIONS_PER_ROUND));
+  }, []);
+
+  useEffect(() => {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setTheme(prefersDark ? 'dark' : 'light');
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e) => {
+      setTheme(e.matches ? 'dark' : 'light');
+    };
+    mediaQuery.addEventListener('change', handleChange);
+    handleChange(mediaQuery);
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+    };
   }, []);
 
   const onCardSelect = (index) => {
@@ -56,16 +71,6 @@ const App = () => {
     }
   };
 
-  const goToNextQuestion = () => {
-    const nextIndex = currentQuestionIndex +1;
-    if (nextIndex < shuffledQuestions.length) {
-      setCurrentQuestionIndex(nextIndex);
-      setResetTimerFlag(!resetTimerFlag);
-    } else {
-      setGameOver(true);
-    }
-  };
-
   const handlePass = (index) => {
     if (!hasPassed && !passedQuestions.includes(index)) {
       setHasPassed(true);
@@ -93,8 +98,12 @@ const App = () => {
     setHasPassed(false);
   };
 
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
   return (
-      <div className="app">
+      <div className={`app $(theme)-theme`}>
         <Legend categories={categories} />
         <ScoreDisplay score={score}/>
         {gameOver ? (
