@@ -103,7 +103,10 @@ const App = () => {
   };
 
   return (
-      <div className={`app $(theme)-theme`}>
+      <div className={`app ${theme}-theme`}>
+        <button onClick={toggleTheme} className="theme-toggle-button">
+          Toggle Theme
+        </button>
         <Legend categories={categories} />
         <ScoreDisplay score={score}/>
         {gameOver ? (
