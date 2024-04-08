@@ -1,0 +1,3 @@
+const TOTAL_QUESTIONS_PER_ROUND = 16;
+
+export default TOTAL_QUESTIONS_PER_ROUND;

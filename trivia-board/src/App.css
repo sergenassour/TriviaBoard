@@ -34,11 +34,24 @@ body {
   justify-content: center;
 }
 
+.card-face-down {
+  cursor: pointer;
+  padding: 10px;
+  background-color: #ddd; /* Placeholder color */
+  border-radius: 5px;
+  text-align: center;
+}
+
+.card-face-up {
+  padding: 10px;
+  border-radius: 5px;
+}
+
 .question-card {
-  width: calc(50% - 20px);
+  width: 50%;
   background-color: #fff;
   border-radius: 10px;
-  margin: 10px;
+  margin: 0 auto;
   padding: 15px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   cursor: pointer;
