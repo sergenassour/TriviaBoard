@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const QuestionCard = ({ data, onAnswerSelected, isSelected, onCardSelect, isPassed }) => {
+const QuestionCard = ({ data, onAnswerSelected, isSelected, onCardSelect, isPassed, idx }) => {
     const [selectedAnswer, setSelectedAnswer] = useState('');
 
     useEffect(() => {
@@ -12,7 +12,7 @@ const QuestionCard = ({ data, onAnswerSelected, isSelected, onCardSelect, isPass
     const handleAnswerClick = (answer) => {
         if (!isPassed) {
             setSelectedAnswer(answer);
-            onAnswerSelected(answer === data.correctAnswer, data.score);
+            onAnswerSelected(answer === data.correctAnswer, data.score, idx);
         }
     };
 
@@ -28,7 +28,11 @@ const QuestionCard = ({ data, onAnswerSelected, isSelected, onCardSelect, isPass
                             <button
                                 key={index}
                                 className={`answer ${selectedAnswer === answer ? 'selected' : ''}`}
-                                onClick={() => handleAnswerClick(answer)}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleAnswerClick(answer);
+                                }}
                                 disabled={selectedAnswer !== ''}
                             >
                                 {answer}

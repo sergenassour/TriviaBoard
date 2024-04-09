@@ -12,8 +12,8 @@ import Legend from "./components/Legend";
 const App = () => {
   const [shuffledQuestions, setShuffledQuestions] = useState([]);
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [passedQuestions, setPassedQuestions] = useState([]);
+  const [answeredQuestions, setAnsweredQuestions] = useState([]);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [hasPassed, setHasPassed] = useState(false);
@@ -31,20 +31,23 @@ const App = () => {
     }
   };
 
-  const handleAnswerSelection = (isCorrect, questionScore) => {
-    const nextIndex = currentQuestionIndex + 1;
+  const handleAnswerSelection = (isCorrect, questionScore, idx) => {
+    const answeredQsLength = answeredQuestions.length + 1 + (hasPassed ? 1 : 0);
+    setAnsweredQuestions((prev) => [...prev, idx]);
+
     if (isCorrect) {
-      setScore(score + questionScore);
+      setScore((score) => score + questionScore);
       setFeedback('Correct!');
     } else {
-      setScore(score - questionScore);
+      setScore((score) => score - questionScore);
       setFeedback('Wrong!');
     }
+
     setResetTimerFlag(false);
-    if (nextIndex < TOTAL_QUESTIONS_PER_ROUND) {
+    setSelectedQuestionIndex(null);
+    if (answeredQsLength < TOTAL_QUESTIONS_PER_ROUND) {
       const timeoutId = setTimeout(() => {
         setFeedback('');
-        setCurrentQuestionIndex(nextIndex);
       }, 2000);
 
       return () => clearTimeout(timeoutId);
@@ -62,22 +65,23 @@ const App = () => {
       setPassedQuestions((prevPassed) =>[...prevPassed, index]);
       setFeedback('Question Passed');
       setTimeout(() => setFeedback(''), 2000);
+      setResetTimerFlag(false);
     }
   };
 
   const handleTimeUp = () => {
-    setScore(score - shuffledQuestions[currentQuestionIndex].score);
+    setScore(score - shuffledQuestions[selectedQuestionIndex].score);
     setResetTimerFlag(false);
-    if (currentQuestionIndex < shuffledQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    if (selectedQuestionIndex < shuffledQuestions.length - 1) {
+      setSelectedQuestionIndex((prev) => prev + 1);
     } else {
       setGameOver(true);
     }
   };
 
   const restartGame = () => {
-    setShuffledQuestions(shuffleArray([...triviaData]));
-    setCurrentQuestionIndex(0);
+    setShuffledQuestions(shuffleArray([...triviaData]).slice(0, TOTAL_QUESTIONS_PER_ROUND));
+    setAnsweredQuestions([]);
     setScore(0);
     setGameOver(false);
     setHasPassed(false);
@@ -90,7 +94,7 @@ const App = () => {
         {gameOver ? (
             <div className="end-game">
               <div className="message">
-                {score > 0 ? 'Congratulations! You won!' : 'Game over. Try again!'}
+                {score > 0 ? 'Congratulations! You won!' : 'You could do better. Try again!'}
               </div>
               <button onClick={restartGame}>Restart Game</button>
             </div>
@@ -103,8 +107,9 @@ const App = () => {
                     onCardSelect={() => onCardSelect(index)}
                     onAnswerSelected={handleAnswerSelection}
                     isSelected={selectedQuestionIndex === index}
-                    isPassed={passedQuestions.includes(index)}
+                    isPassed={passedQuestions.includes(index) || answeredQuestions.includes(index)}
                     feedback={feedback}
+                    idx={index}
                     />
             ))}
               {selectedQuestionIndex !== null && (
